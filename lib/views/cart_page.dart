@@ -5,8 +5,15 @@ import 'package:shop_app/provider/cart_provider.dart';
 import 'package:shop_app/provider/orders_provider.dart';
 import 'package:shop_app/views/widgets/cart_item_widget.dart';
 
-class CartPage extends StatelessWidget {
+class CartPage extends StatefulWidget {
   const CartPage({super.key});
+
+  @override
+  State<CartPage> createState() => _CartPageState();
+}
+
+class _CartPageState extends State<CartPage> {
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -44,16 +51,22 @@ class CartPage extends StatelessWidget {
                         labelStyle: const TextStyle(color: Colors.white),
                       ),
                       const Spacer(),
-                      TextButton(
-                        onPressed: () {
-                          Provider.of<OrdersProvider>(
-                            context,
-                            listen: false,
-                          ).addOrders(cartProvider);
-                          cartProvider.clear();
-                        },
-                        child: const Text("Finalizar Comprar"),
-                      ),
+                      _isLoading
+                          ? const CircularProgressIndicator()
+                          : TextButton(
+                              onPressed: items.isEmpty
+                                  ? null
+                                  : () {
+                                      setState(() => _isLoading = true);
+                                      Provider.of<OrdersProvider>(
+                                        context,
+                                        listen: false,
+                                      ).addOrders(cartProvider);
+                                      cartProvider.clear();
+                                      setState(() => _isLoading = false);
+                                    },
+                              child: const Text("Finalizar Comprar"),
+                            ),
                     ],
                   ),
                 ),
