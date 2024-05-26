@@ -40,10 +40,10 @@ class ProductItemWidget extends StatelessWidget {
                         TextButton(
                           onPressed: () async {
                             try {
+                              Navigator.of(context).pop(true);
                               await Provider.of<ProductListProvider>(context,
                                       listen: false)
                                   .delProduct(productModel);
-                              Navigator.of(context).pop(true);
                             } catch (e) {
                               Navigator.of(context).pop();
                               ScaffoldMessenger.of(context).showSnackBar(

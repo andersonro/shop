@@ -16,6 +16,7 @@ class ProductsOverViewPage extends StatefulWidget {
 class _ProductsOverViewPageState extends State<ProductsOverViewPage> {
   bool isShowFavoriteOnly = false;
   bool isLoading = true;
+  bool isError = false;
 
   _toggleShowFavorite(bool fg) {
     setState(() {
@@ -30,10 +31,18 @@ class _ProductsOverViewPageState extends State<ProductsOverViewPage> {
   }
 
   _loadingProducts() async {
+    setState(() => isLoading = true);
     await Provider.of<ProductListProvider>(context, listen: false)
         .loadProducts()
-        .then((value) {
-      setState(() => isLoading = false);
+        .then(
+      (value) {
+        setState(() => isLoading = false);
+      },
+    ).catchError((error) {
+      setState(() {
+        isError = true;
+        isLoading = false;
+      });
     });
   }
 
@@ -81,8 +90,17 @@ class _ProductsOverViewPageState extends State<ProductsOverViewPage> {
         ),
         body: isLoading
             ? const Center(child: CircularProgressIndicator())
-            : ProductGridWidget(
-                isShowFavoriteOnly: isShowFavoriteOnly,
+            : RefreshIndicator(
+                onRefresh: () async {
+                  _loadingProducts();
+                },
+                child: isError
+                    ? const Center(
+                        child: Text('Nenhum produto localizado!'),
+                      )
+                    : ProductGridWidget(
+                        isShowFavoriteOnly: isShowFavoriteOnly,
+                      ),
               ),
         drawer: const DrawerWidget(),
       ),

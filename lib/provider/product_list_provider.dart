@@ -3,7 +3,6 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
-import 'package:shop_app/data/dummy_data.dart';
 import 'package:shop_app/exceptions/http_exception.dart';
 import 'package:shop_app/models/product_model.dart';
 import 'package:shop_app/services/firebase_services.dart';
@@ -47,7 +46,7 @@ class ProductListProvider with ChangeNotifier {
 
     final product = ProductModel(
       id: hasId ? data['id'].toString() : Random().nextInt(10).toString(),
-      title: data['name'].toString(),
+      title: data['title'].toString(),
       description: data['description'].toString(),
       price:
           double.tryParse(data['price'].toString().replaceAll(',', '.')) ?? 0,
