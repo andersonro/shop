@@ -1,16 +1,28 @@
-# shop_app
+# Shop App
 
-A new Flutter project.
+Projeto de loja virtual.
 
-## Getting Started
+## Projeto
 
-This project is a starting point for a Flutter application.
+Este projeto tem base em estudos com o desenvolvimento em Flutter:
 
-A few resources to get you started if this is your first Flutter project:
+- Trabalhando com navegações
+- Gerenciamento de estado
+    - Provider
+    - ChangeNotifier
+- Personalização de fontes
+- Forms
+    - validações
+    - submit
+    - crud
+- Requisições HTTP e API Rest
+    - Packages http
+- Tratamentos de erros
+    - Try / Catch
+- Requisição assincrona 
+    - Future / then / async / await
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### Estudo baseado no curso:
+
+- [Aprenda Flutter e Desenvolva Apps Para Android e IOS (Cod3r)](https://www.udemy.com/course/curso-flutter/)
