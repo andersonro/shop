@@ -6,25 +6,30 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+
     return SafeArea(
       child: Scaffold(
-        body: Container(
-          width: double.infinity,
-          height: double.infinity,
-          color: Theme.of(context).primaryColor,
-          child: const Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                'Loja',
-                style: TextStyle(
-                  fontSize: 30,
-                  color: Colors.white,
+        body: SingleChildScrollView(
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+            width: double.infinity,
+            height: size.height * 0.99,
+            color: Theme.of(context).primaryColor,
+            child: const Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  'Loja',
+                  style: TextStyle(
+                    fontSize: 30,
+                    color: Colors.white,
+                  ),
                 ),
-              ),
-              LoginForm(),
-            ],
+                LoginForm(),
+              ],
+            ),
           ),
         ),
       ),

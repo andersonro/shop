@@ -8,9 +8,14 @@ import 'package:shop_app/models/product_model.dart';
 import 'package:shop_app/services/firebase_services.dart';
 
 class ProductListProvider with ChangeNotifier {
+  String _token;
+  String _userId;
+  List<ProductModel> _item = [];
+
+  ProductListProvider(this._token, this._userId, this._item);
+
   final services = FireBaseServices();
 
-  final List<ProductModel> _item = [];
   List<ProductModel> get items => [..._item];
   List<ProductModel> get itemsFavorite =>
       _item.where((element) => element.isFavorite).toList();
@@ -21,9 +26,14 @@ class ProductListProvider with ChangeNotifier {
 
   Future loadProducts() async {
     _item.clear();
-    final res = await services.loadProducts();
+    final res = await services.loadProducts(token: _token);
 
     if (res == 'null') return;
+
+    final resFavorite = await services.userFavorites(_token, _userId);
+
+    final dataUserFavorite =
+        resFavorite == 'null' ? {} : jsonDecode(resFavorite);
 
     Map<String, dynamic> data = jsonDecode(res);
     data.forEach((key, value) {
@@ -34,7 +44,7 @@ class ProductListProvider with ChangeNotifier {
           description: value['description'],
           price: value['price'],
           imageUrl: value['imageUrl'],
-          isFavorite: value['isFavorite'],
+          isFavorite: dataUserFavorite[key] ?? false,
         ),
       );
     });
@@ -60,7 +70,7 @@ class ProductListProvider with ChangeNotifier {
   }
 
   Future addProduct(ProductModel productModel) async {
-    final _response = await services.addProduct(productModel);
+    final _response = await services.addProduct(productModel, _token);
     final _id = jsonDecode(_response)['name'];
     if (_id != 'null') {
       _item.add(
@@ -79,7 +89,7 @@ class ProductListProvider with ChangeNotifier {
   Future editProduct(ProductModel productModel) async {
     int index = _item.indexWhere((p) => p.id == productModel.id);
     if (index >= 0) {
-      await services.editProduct(productModel);
+      await services.editProduct(productModel, _token);
 
       _item[index] = productModel;
 
@@ -94,7 +104,7 @@ class ProductListProvider with ChangeNotifier {
       _item.remove(product);
       notifyListeners();
 
-      Response response = await services.deleteProduct(productModel);
+      Response response = await services.deleteProduct(productModel, _token);
       if (response.statusCode >= 400) {
         _item.insert(index, product);
         notifyListeners();

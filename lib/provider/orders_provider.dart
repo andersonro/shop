@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:shop_app/models/cart_item_model.dart';
@@ -10,7 +9,11 @@ import 'package:shop_app/services/firebase_services.dart';
 class OrdersProvider with ChangeNotifier {
   final FireBaseServices _service = FireBaseServices();
 
-  final List<OrdersModel> _items = [];
+  List<OrdersModel> _items = [];
+  String _token;
+  String _userId;
+
+  OrdersProvider(this._token, this._userId, this._items);
 
   List<OrdersModel> get items {
     return [..._items];
@@ -22,7 +25,7 @@ class OrdersProvider with ChangeNotifier {
 
   Future loadOrders() async {
     _items.clear();
-    final res = await _service.loadOrders();
+    final res = await _service.loadOrders(_token, _userId);
 
     if (res == 'null') return;
 
@@ -57,7 +60,7 @@ class OrdersProvider with ChangeNotifier {
       date: date,
     );
 
-    final response = await _service.addOrder(ordersModel);
+    final response = await _service.addOrder(ordersModel, _token, _userId);
 
     final id = jsonDecode(response)['name'];
 

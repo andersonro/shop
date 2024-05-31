@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shop_app/models/product_model.dart';
@@ -86,7 +84,6 @@ class _ProductFormPageState extends State<ProductFormPage> {
           .saveProduct(formData);
       Navigator.of(context).pop();
     } catch (e) {
-      print('error: ${e.toString()}');
       await showDialog(
         context: context,
         builder: (context) {

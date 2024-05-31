@@ -3,11 +3,12 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shop_app/models/orders_model.dart';
 import 'package:shop_app/models/product_model.dart';
+import 'package:shop_app/utils/auth_exception.dart';
 
 class FireBaseServices {
-  Future addProduct(ProductModel productModel) async {
+  Future addProduct(ProductModel productModel, String token) async {
     final response = await http.post(
-      Uri.parse('${FireBaseUrls.productUrlBase}.json'),
+      Uri.parse('${FireBaseUrls.productUrlBase}.json?auth=$token'),
       body: jsonEncode(
         {
           "title": productModel.title,
@@ -21,9 +22,10 @@ class FireBaseServices {
     return response.body;
   }
 
-  Future editProduct(ProductModel productModel) async {
+  Future editProduct(ProductModel productModel, String token) async {
     final response = await http.patch(
-      Uri.parse('${FireBaseUrls.productUrlBase}/${productModel.id}.json'),
+      Uri.parse(
+          '${FireBaseUrls.productUrlBase}/${productModel.id}.json?auth=$token'),
       body: jsonEncode(
         {
           "title": productModel.title,
@@ -38,23 +40,25 @@ class FireBaseServices {
     return response;
   }
 
-  Future deleteProduct(ProductModel productModel) async {
+  Future deleteProduct(ProductModel productModel, String token) async {
     final response = await http.delete(
-      Uri.parse('${FireBaseUrls.productUrlBase}/${productModel.id}.json'),
+      Uri.parse(
+          '${FireBaseUrls.productUrlBase}/${productModel.id}.json?auth=$token'),
     );
 
     return response;
   }
 
-  Future loadProducts() async {
-    final response =
-        await http.get(Uri.parse('${FireBaseUrls.productUrlBase}.json'));
+  Future loadProducts({required String token}) async {
+    final response = await http
+        .get(Uri.parse('${FireBaseUrls.productUrlBase}.json?auth=$token'));
+
     return response.body;
   }
 
-  Future addOrder(OrdersModel ordersModel) async {
+  Future addOrder(OrdersModel ordersModel, String token, String userId) async {
     final response = await http.post(
-      Uri.parse('${FireBaseUrls.ordersUrlBase}.json'),
+      Uri.parse('${FireBaseUrls.ordersUrlBase}/$userId.json?auth=$token'),
       body: jsonEncode(
         {
           "total": ordersModel.total,
@@ -74,16 +78,67 @@ class FireBaseServices {
     return response.body;
   }
 
-  Future loadOrders() async {
-    final response =
-        await http.get(Uri.parse('${FireBaseUrls.ordersUrlBase}.json'));
+  Future loadOrders(String token, String userId) async {
+    final response = await http.get(
+        Uri.parse('${FireBaseUrls.ordersUrlBase}/$userId.json?auth=$token'));
+
+    return response.body;
+  }
+
+  Future auth(
+      {required String email,
+      required String password,
+      required String typeAuth}) async {
+    final response = await http.post(
+      Uri.parse(typeAuth == 'register'
+          ? FireBaseUrls.accountsRegisterUrlBase
+          : FireBaseUrls.accountsLoginUrlBase),
+      body: jsonEncode({
+        'email': email,
+        'password': password,
+        'returnSecureToken': true,
+      }),
+    );
+
+    final body = jsonDecode(response.body);
+
+    if (body['error'] != null) {
+      throw AuthException(key: body['error']['message']);
+    }
+
+    return body;
+  }
+
+  Future userFavoriteProduct(
+      ProductModel productModel, String token, String userId) async {
+    final response = await http.put(
+      Uri.parse(
+          '${FireBaseUrls.userFavoriteProductUrlBase}/$userId/${productModel.id}.json?auth=$token'),
+      body: jsonEncode(productModel.isFavorite),
+    );
+
+    return response;
+  }
+
+  Future userFavorites(String token, String userId) async {
+    final response = await http.get(
+      Uri.parse(
+          '${FireBaseUrls.userFavoriteProductUrlBase}/$userId.json?auth=$token'),
+    );
 
     return response.body;
   }
 }
 
 class FireBaseUrls {
-  static String _baseUrl = 'https://shop-aro-default-rtdb.firebaseio.com';
-  static String productUrlBase = '$_baseUrl/products';
-  static String ordersUrlBase = '$_baseUrl/orders';
+  static String productUrlBase =
+      'https://shop-aro-default-rtdb.firebaseio.com/products';
+  static String ordersUrlBase =
+      'https://shop-aro-default-rtdb.firebaseio.com/orders';
+  static String accountsRegisterUrlBase =
+      'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyCrdw-tAK9Cjbza46YxxAb-sLw6jbZBo-I';
+  static String accountsLoginUrlBase =
+      'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyCrdw-tAK9Cjbza46YxxAb-sLw6jbZBo-I';
+  static String userFavoriteProductUrlBase =
+      'https://shop-aro-default-rtdb.firebaseio.com/userFavorite';
 }
